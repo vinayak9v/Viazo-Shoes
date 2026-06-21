@@ -1,10 +1,9 @@
 import React from 'react'
-import Landing from './landing/page'
 
 function page() {
   return (
     <div>
-      <Landing/>
+      hello
     </div>
   )
 }

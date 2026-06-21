@@ -1,0 +1,166 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model address {
+  id        Int     @id @default(autoincrement())
+  userId    Int
+  label     String
+  line1     String
+  line2     String?
+  city      String
+  state     String
+  pincode   String
+  isDefault Boolean @default(false)
+  user      user    @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Address_userId_fkey")
+  order     order[]
+
+  @@index([userId], map: "Address_userId_fkey")
+}
+
+model category {
+  id        Int       @id @default(autoincrement())
+  name      String    @unique(map: "Category_name_key")
+  imageUrl  String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime
+  product   product[]
+}
+
+model order {
+  id        Int          @id @default(autoincrement())
+  userId    Int
+  addressId Int
+  status    order_status @default(PENDING)
+  total     Decimal      @db.Decimal(10, 2)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @default(now()) @updatedAt
+  address   address      @relation(fields: [addressId], references: [id], map: "Order_addressId_fkey")
+  user      user         @relation(fields: [userId], references: [id], map: "Order_userId_fkey")
+  orderitem orderitem[]
+  payment   payment?
+
+  @@index([addressId], map: "Order_addressId_fkey")
+  @@index([userId], map: "Order_userId_fkey")
+}
+
+model orderitem {
+  id        Int     @id @default(autoincrement())
+  orderId   Int
+  productId Int
+  quantity  Int
+  price     Decimal @db.Decimal(10, 2)
+  size      String?
+  color     String?
+  order     order   @relation(fields: [orderId], references: [id], onDelete: Cascade, map: "OrderItem_orderId_fkey")
+  product   product @relation(fields: [productId], references: [id], map: "OrderItem_productId_fkey")
+
+  @@index([orderId], map: "OrderItem_orderId_fkey")
+  @@index([productId], map: "OrderItem_productId_fkey")
+}
+
+model product {
+  id               Int            @id @default(autoincrement())
+  name             String
+  sku              String         @unique(map: "Product_sku_key")
+  shortDescription String?        @db.Text
+  fullDescription  String?        @db.LongText
+  price            Decimal        @db.Decimal(10, 2)
+  discountPrice    Decimal?       @db.Decimal(10, 2)
+  categoryId       Int
+  createdAt        DateTime       @default(now())u67
+  updatedAt        DateTime
+  orderitem        orderitem[]
+  category         category       @relation(fields: [categoryId], references: [id], map: "Product_categoryId_fkey")
+  productcolor     productcolor[]
+  productimage     productimage[]
+  productsize      productsize[]
+
+  @@index([categoryId], map: "Product_categoryId_fkey")
+}
+
+model productcolor {
+  id        Int     @id @default(autoincrement())
+  productId Int
+  color     String
+  product   product @relation(fields: [productId], references: [id], onDelete: Cascade, map: "ProductColor_productId_fkey")
+
+  @@index([productId], map: "ProductColor_productId_fkey")
+}
+
+model productimage {
+  id        Int     @id @default(autoincrement())
+  productId Int
+  imageUrl  String
+  product   product @relation(fields: [productId], references: [id], onDelete: Cascade, map: "ProductImage_productId_fkey")
+
+  @@index([productId], map: "ProductImage_productId_fkey")
+}
+
+model productsize {
+  id        Int     @id @default(autoincrement())
+  productId Int
+  size      String
+  product   product @relation(fields: [productId], references: [id], onDelete: Cascade, map: "ProductSize_productId_fkey")
+
+  @@index([productId], map: "ProductSize_productId_fkey")
+}
+
+model user {
+  id           Int         @id @default(autoincrement())
+  name         String
+  phone        String      @unique(map: "User_phone_key")
+  email        String      @unique(map: "User_email_key")
+  password     String
+  otp          String?
+  otpExpiresAt DateTime?
+  isVerified   Boolean     @default(false)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime
+  address      address[]
+  order        order[]
+  usertoken    usertoken[]
+}
+
+model payment {
+  id                Int            @id @default(autoincrement())
+  orderId           Int            @unique
+  razorpayOrderId   String         @unique(map: "Payment_razorpayOrderId_key") @db.VarChar(100)
+  razorpayPaymentId String?        @db.VarChar(100)
+  razorpaySignature String?        @db.VarChar(500)
+  amount            Decimal        @db.Decimal(10, 2)
+  currency          String         @default("INR")
+  status            payment_status @default(PENDING)
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @default(now())
+  order             order          @relation(fields: [orderId], references: [id], map: "Payment_orderId_fkey")
+}
+
+model usertoken {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  token     String   @unique(map: "UserToken_token_key") @db.VarChar(500)
+  createdAt DateTime @default(now())
+  user      user     @relation(fields: [userId], references: [id], onDelete: Cascade, map: "UserToken_userId_fkey")
+
+  @@index([userId], map: "UserToken_userId_fkey")
+}
+
+enum order_status {
+  PENDING
+  CONFIRMED
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum payment_status {
+  PENDING
+  SUCCESS
+  FAILED
+  REFUNDED
+}
