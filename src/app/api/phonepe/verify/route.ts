@@ -7,58 +7,66 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
 
-    const merchantOrderId =
-      searchParams.get("merchantOrderId");
+    const merchantOrderId = searchParams.get("merchantOrderId");
 
     if (!merchantOrderId) {
       return fail("merchantOrderId required");
     }
 
-    const statusResponse =
-      await getPhonePeOrderStatus(
-        merchantOrderId
-      );
+    // PhonePe Order Status
+    const statusResponse = await getPhonePeOrderStatus(merchantOrderId);
 
-    const success =
-      statusResponse?.success === true &&
-      statusResponse?.data?.state === "COMPLETED";
+    console.log("PhonePe Response:", statusResponse);
+
+    // Payment Success Check
+    const success = statusResponse?.state === "COMPLETED";
 
     if (success) {
-      const [payments]: any = await db.query(
+      // Update Payment
+      const [paymentResult]: any = await db.query(
+        `
+        UPDATE payment
+        SET status='SUCCESS'
+        WHERE razorpayOrderId=?
+        `,
+        [merchantOrderId]
+      );
+
+      console.log("Payment Update:", paymentResult);
+
+      // Update Order
+      const [orderResult]: any = await db.query(
+        `
+        UPDATE orders
+        SET status='CONFIRMED'
+        WHERE merchantOrderId=?
+        `,
+        [merchantOrderId]
+      );
+
+      console.log("Order Update:", orderResult);
+
+      // Check Order
+      const [orders]: any = await db.query(
         `
         SELECT *
-        FROM payment
-        WHERE razorpayOrderId = ?
+        FROM orders
+        WHERE merchantOrderId=?
         LIMIT 1
         `,
         [merchantOrderId]
       );
 
-      if (payments.length > 0) {
-        const payment = payments[0];
-
-        await db.query(
-          `
-          UPDATE payment
-          SET status='SUCCESS'
-          WHERE id=?
-          `,
-          [payment.id]
-        );
-
-        await db.query(
-          `
-          UPDATE orders
-          SET status='CONFIRMED'
-          WHERE id=?
-          `,
-          [payment.orderId]
-        );
-      }
+      console.log("Updated Order:", orders);
     }
 
-    return ok(statusResponse);
+    return ok({
+      success,
+      phonepe: statusResponse,
+    });
+
   } catch (error: any) {
+    console.error(error);
     return fail(error.message);
   }
 }
