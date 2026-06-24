@@ -82,20 +82,28 @@ export async function sendOtpEmail(to: string, otp: string, subject: string) {
 }
 
 // ─── Auth middleware for user routes ─────────────
-import prisma from "./prisma";
+
+
+
 import { NextRequest } from "next/server";
 
-export async function requireUser(req: NextRequest): Promise<number | NextResponse> {
+export async function requireUser(
+  req: NextRequest
+): Promise<number | NextResponse> {
   const authHeader = req.headers.get("authorization") ?? "";
-  const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : null;
+  const token = authHeader.startsWith("Bearer ")
+    ? authHeader.slice(7)
+    : null;
 
-  if (!token) return fail("Token required", 401);
+  if (!token) {
+    return fail("Token required", 401);
+  }
 
   const payload = verifyToken(token);
-  if (!payload) return fail("Invalid or expired token", 401);
 
-  const dbToken = await prisma.usertoken .findUnique({ where: { token } });
-  if (!dbToken) return fail("Token revoked", 401);
+  if (!payload) {
+    return fail("Invalid or expired token", 401);
+  }
 
   return payload.userId;
 }

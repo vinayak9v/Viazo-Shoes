@@ -118,7 +118,7 @@ export default function Navbar() {
           onMouseEnter={() => setIsCollectionsHovered(true)}
           onMouseLeave={() => setIsCollectionsHovered(false)}
         >
-          <Link href="/shop" className="group-hover:text-gray-400 transition-colors">
+          <Link href="/collections" className="group-hover:text-gray-400 transition-colors">
             Collections
           </Link>
 
@@ -278,7 +278,7 @@ export default function Navbar() {
           <div className="flex flex-col gap-5 text-sm font-semibold tracking-widest uppercase mb-6">
             <Link href="/" onClick={toggleMenu} className="hover:text-gray-400">Home</Link>
             <Link href="/shop" onClick={toggleMenu} className="hover:text-gray-400">Shop</Link>
-            <Link href="/shop" onClick={toggleMenu} className="hover:text-gray-400">Collections</Link>
+            <Link href="/collections" onClick={toggleMenu} className="hover:text-gray-400">Collections</Link>
             <Link href="/about" onClick={toggleMenu} className="hover:text-gray-400">About Us</Link>
             <Link href="/contact" onClick={toggleMenu} className="hover:text-gray-400">Contact</Link>
           </div>
