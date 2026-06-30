@@ -72,7 +72,7 @@ model product {
   price            Decimal        @db.Decimal(10, 2)
   discountPrice    Decimal?       @db.Decimal(10, 2)
   categoryId       Int
-  createdAt        DateTime       @default(now())u67
+  createdAt        DateTime       @default(now())
   updatedAt        DateTime
   orderitem        orderitem[]
   category         category       @relation(fields: [categoryId], references: [id], map: "Product_categoryId_fkey")

@@ -1,21 +1,18 @@
 "use client";
 
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-export default function PaymentStatus() {
+function PaymentStatusInner() {
   const router = useRouter();
   const params = useSearchParams();
 
   useEffect(() => {
-    const merchantOrderId =
-      params.get("merchantOrderId");
+    const merchantOrderId = params.get("merchantOrderId");
 
     if (!merchantOrderId) return;
 
-    fetch(
-      `/api/phonepe/verify?merchantOrderId=${merchantOrderId}`
-    )
+    fetch(`/api/phonepe/verify?merchantOrderId=${merchantOrderId}`)
       .then((res) => res.json())
       .then((data) => {
         if (
@@ -29,9 +26,13 @@ export default function PaymentStatus() {
       });
   }, []);
 
+  return <div className="p-10 text-center">Verifying Payment...</div>;
+}
+
+export default function PaymentStatus() {
   return (
-    <div className="p-10 text-center">
-      Verifying Payment...
-    </div>
+    <Suspense fallback={<div className="p-10 text-center">Verifying Payment...</div>}>
+      <PaymentStatusInner />
+    </Suspense>
   );
 }
