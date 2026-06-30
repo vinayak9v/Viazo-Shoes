@@ -18,6 +18,6 @@ jobs:
           script: |
             cd /www/wwwroot/Viazo-Shoes
             git pull origin main
-            yarn install --production
+            yarn install
             yarn build
-            pm2 restart viazo
+            /www/server/nodejs/v24.18.0/lib/node_modules/pm2/bin/pm2 restart viazo-pm2
