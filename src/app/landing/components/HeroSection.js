@@ -5,6 +5,7 @@ import Image from 'next/image';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { Truck, ShieldCheck, RefreshCcw, ChevronLeft, ChevronRight } from 'lucide-react';
+import Link from 'next/link';
 
 const slides = [
   { id: 1, image: '/hero1 (2).png' }, 
@@ -152,7 +153,7 @@ export default function HeroSection() {
         {/* Text Area Details */}
         <div ref={textContainerRef} className="max-w-xl">
           <p className="animate-text text-gray-400 text-xs tracking-[0.3em] font-black mb-4">
-            NEW COLLECTION 2024
+            NEW COLLECTION 2026
           </p>
           <h1 className="animate-text animate-title-slide text-5xl md:text-7xl font-extrabold uppercase leading-[1.1] mb-6 tracking-tight">
             Move Bold. <br /> Live Fearless.
@@ -163,12 +164,17 @@ export default function HeroSection() {
 
           {/* Action Buttons */}
           <div className="animate-text flex items-center gap-4">
-            <button className="bg-white text-black px-8 py-3.5 text-xs font-black tracking-widest hover:bg-gray-200 transition-all active:scale-95">
+            <Link href='/shop'>
+            <button  className="bg-white text-black px-8 py-3.5 text-xs font-black tracking-widest hover:bg-gray-200 transition-all active:scale-95">
               SHOP NOW
             </button>
+            </Link>
+
+            <Link href="/collections">
             <button className="border-2 border-white text-white px-8 py-3.5 text-xs font-black tracking-widest hover:bg-white hover:text-black transition-all active:scale-95">
               EXPLORE COLLECTIONS
             </button>
+            </Link>
           </div>
         </div>
       </div>

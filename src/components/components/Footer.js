@@ -97,10 +97,10 @@ export default function Footer() {
           <div>
             <h4 className="text-sm font-bold uppercase tracking-wider mb-6">Contact Us</h4>
             <ul className="flex flex-col gap-3 text-[13px] text-gray-400 mb-8">
-              <li><span className="text-white">Email:</span> support@viazo.com</li>
-              <li><span className="text-white">Phone:</span> +91 98765 43210</li>
+              {/* <li><span className="text-white">Email:</span> support@viazo.com</li> */}
+              <li><span className="text-white">Phone:</span> +91 9111116588</li>
               <li><span className="text-white">Address:</span> Viazo HQ, India</li>
-            </ul>
+            </ul> 
 
             {/* Payment Method Badges (Built with Tailwind) */}
             <div className="flex items-center gap-2 flex-wrap">
@@ -131,7 +131,7 @@ export default function Footer() {
 
         {/* Bottom Section: Copyright & Links */}
         <div className="pt-6 border-t border-zinc-800 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-gray-500">
-          <p>© 2024 Viazo. All rights reserved.</p>
+          <p>© 2026 Viazo. All rights reserved.</p>
           <div className="flex items-center gap-6">
             <Link href="/terms" className="hover:text-white transition-colors">Terms & Conditions</Link>
             <Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>

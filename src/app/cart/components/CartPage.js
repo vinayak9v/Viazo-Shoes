@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -8,12 +8,14 @@ import { useSelector, useDispatch } from 'react-redux';
 import { removeFromCart, updateQuantity } from '../../../../redux/cartSlice'; 
 import { ArrowLeft, Minus, Plus, X, Tag, Layers, RefreshCcw, ShieldCheck, Truck, MapPin } from 'lucide-react';
 
-export default function CartPage() {
+export const dynamic = "force-dynamic";
+
+// 1. Rename your original CartPage function to CartContent (or similar)
+function CartContent() {
   const router = useRouter();
   const searchParams = useSearchParams(); 
   
   // --- HYDRATION FIX ---
-  // Tells Next.js to wait for the browser to load before rendering the cart details
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -51,7 +53,6 @@ export default function CartPage() {
       const fetchedAddresses = data.data || data || [];
       
       setAddresses(fetchedAddresses);
-      // Auto-select default address or the first one
       if (fetchedAddresses.length > 0) {
         const defaultAddr = fetchedAddresses.find(a => a.isDefault);
         setSelectedAddressId(defaultAddr ? defaultAddr.id : fetchedAddresses[0].id);
@@ -109,7 +110,6 @@ export default function CartPage() {
 
     setIsCheckingOut(true);
     try {
-      // 1. Format the cart items to match the API exactly
       const formattedItems = cartItems.map(item => ({
         productId: Number(item.id) || item.productId, 
         quantity: Number(item.quantity),
@@ -117,7 +117,6 @@ export default function CartPage() {
         color: item.color || ""
       }));
 
-      // 2. Call the Create Order API
       const res = await fetch(`/api/phonepe/create-order`, {
         method: 'POST',
         headers: {
@@ -130,7 +129,6 @@ export default function CartPage() {
         })
       });
       
-      // 3. Read the response text FIRST to catch HTML errors gracefully
       const responseText = await res.text();
       let data;
       
@@ -140,15 +138,13 @@ export default function CartPage() {
         throw new Error(`Status ${res.status}: ${responseText.substring(0, 100)}...`);
       }
 
-      // 4. Handle Backend Errors
       if (!res.ok || !data.success) {
         throw new Error(data.message || `Backend rejected the request (Status ${res.status})`);
       }
 
-      // 5. Redirect on Success
       const paymentUrl = data.data?.redirectUrl || data.redirectUrl || data.url; 
       if (paymentUrl) {
-        window.location.href = paymentUrl; // Redirect to PhonePe
+        window.location.href = paymentUrl; 
       } else {
         alert("Order created, but payment URL not found in response.");
       }
@@ -179,9 +175,7 @@ export default function CartPage() {
   const total = subtotal - discount;
   const totalItems = cartItems.reduce((acc, item) => acc + item.quantity, 0);
 
-  // --- PREVENT HYDRATION MISMATCH ---
   if (!isMounted) {
-    // Return empty div with same structure to prevent flicker
     return <div className="min-h-screen bg-white font-sans text-black pb-20" />; 
   }
 
@@ -401,5 +395,14 @@ export default function CartPage() {
 
       </div>
     </div>
+  );
+}
+
+// 2. Create a new default export that wraps the content in <Suspense>
+export default function CartPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-white font-sans text-black pb-20 flex items-center justify-center">Loading cart...</div>}>
+      <CartContent />
+    </Suspense>
   );
 }
