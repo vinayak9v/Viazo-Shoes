@@ -20,4 +20,4 @@ jobs:
             git pull origin main
             yarn install
             yarn build
-            /www/server/nodejs/v24.18.0/lib/node_modules/pm2/bin/pm2 restart viazo-pm2
+            /www/server/nodejs/v24.18.0/lib/node_modules/pm2/bin/pm2 startOrReload ecosystem.config.cjs
